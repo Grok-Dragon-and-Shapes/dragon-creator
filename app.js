@@ -1,6 +1,6 @@
 const SCALES = [
   { id: 'fine', label: 'Мелкая' },
-  { id: 'plate', label: 'Пластины' },
+  { id: 'plate', label: 'Пластинчатая' },
   { id: 'spike', label: 'Шипы' }
 ];
 
@@ -16,6 +16,18 @@ const COLORS = [
   { id: 'sapphire', label: 'Сапфировый', main: '#2456a6', dark: '#15336b' },
   { id: 'gold', label: 'Золотой', main: '#d4a017', dark: '#8a6410' },
   { id: 'obsidian', label: 'Обсидиановый', main: '#4a5061', dark: '#22252e' }
+];
+
+const SADDLES = [
+  { id: 'none', label: 'Без седла' },
+  { id: 'leather', label: 'Кожаное', main: '#8b5a2b', dark: '#5a3a1a' },
+  { id: 'war', label: 'Боевое', main: '#5c6370', dark: '#2f333b' }
+];
+
+const ACCESSORIES = [
+  { id: 'crown', label: 'Корона' },
+  { id: 'collar', label: 'Ошейник' },
+  { id: 'amulet', label: 'Амулет' }
 ];
 
 const WING_SHAPES = {
@@ -36,7 +48,7 @@ const DEFS = `<defs>
   </pattern>
 </defs>`;
 
-const state = { scale: 'fine', wing: 'bat', color: 'emerald' };
+const state = { scale: 'fine', wing: 'bat', color: 'emerald', saddle: 'none', accessories: [] };
 
 function buildSpikes(dark) {
   let out = '';
@@ -46,11 +58,34 @@ function buildSpikes(dark) {
   return out;
 }
 
+function buildSaddle(saddle) {
+  if (saddle.id === 'none') return '';
+  const trim = saddle.id === 'war'
+    ? `<path d='M104 110 Q150 92 196 108' fill='none' stroke='#d4a017' stroke-width='3'/>`
+    : '';
+  return `<path d='M100 106 Q150 84 200 102 L194 118 Q150 104 106 118 Z' fill='${saddle.main}' stroke='${saddle.dark}' stroke-width='2'/>${trim}<path d='M150 112 L150 130' stroke='${saddle.dark}' stroke-width='4' stroke-linecap='round'/>`;
+}
+
+function buildAccessories(ids) {
+  let out = '';
+  if (ids.includes('collar')) {
+    out += `<path d='M198 90 Q218 104 236 96' fill='none' stroke='#2b2b2b' stroke-width='7' stroke-linecap='round'/><circle cx='208' cy='98' r='2.5' fill='#f7d774'/><circle cx='222' cy='101' r='2.5' fill='#f7d774'/>`;
+  }
+  if (ids.includes('amulet')) {
+    out += `<path d='M216 100 Q212 116 210 126' fill='none' stroke='#d4a017' stroke-width='2'/><circle cx='210' cy='134' r='7' fill='#7fd3f7' stroke='#2a6f8f' stroke-width='2'/>`;
+  }
+  if (ids.includes('crown')) {
+    out += `<path d='M236 44 L236 30 L243 38 L249 26 L255 38 L262 30 L262 44 Z' fill='#f7d774' stroke='#8a6410' stroke-width='2' stroke-linejoin='round'/>`;
+  }
+  return out;
+}
+
 function buildSvg(s) {
   const c = COLORS.find(x => x.id === s.color);
+  const saddle = SADDLES.find(x => x.id === s.saddle);
   const wingEl = `<g fill='${c.dark}' stroke='${c.dark}' stroke-width='2' stroke-linejoin='round'>${WING_SHAPES[s.wing]}</g>`;
   const spikes = s.scale === 'spike' ? buildSpikes(c.dark) : '';
-  return `<svg viewBox='0 0 300 220' role='img' aria-label='Дракон ${c.label}'>
+  return `<svg viewBox='0 0 300 220' role='img' aria-label='Дракон: ${c.label}'>
     ${DEFS}
     ${wingEl}
     <g transform='translate(300 0) scale(-1 1)'>${wingEl}</g>
@@ -65,24 +100,36 @@ function buildSvg(s) {
     <path d='M218 44 L222 18 L234 42 Z' fill='${c.dark}'/>
     <ellipse cx='232' cy='62' rx='30' ry='22' fill='${c.main}' stroke='${c.dark}' stroke-width='2'/>
     <ellipse cx='232' cy='62' rx='30' ry='22' fill='url(#pat-${s.scale})'/>
-    <path d='M254 56 L284 66 L254 72 Z' fill='${c.main}' stroke='${c.dark}' stroke-width='2' stroke-linejoin='round'/>
+    <path d='M254 56 L284 66 L254 72 Z' fill='${c.dark}'/>
     <circle cx='240' cy='56' r='6' fill='#fff'/>
     <circle cx='242' cy='56' r='3' fill='#111'/>
+    ${buildSaddle(saddle)}
+    ${buildAccessories(s.accessories)}
   </svg>`;
 }
 
+function describe(s) {
+  const c = COLORS.find(x => x.id === s.color);
+  const scale = SCALES.find(x => x.id === s.scale);
+  const wing = WINGS.find(x => x.id === s.wing);
+  const saddle = SADDLES.find(x => x.id === s.saddle);
+  const parts = [`${c.label} дракон: чешуя «${scale.label.toLowerCase()}», крылья «${wing.label.toLowerCase()}»`];
+  if (saddle.id !== 'none') parts.push(`седло «${saddle.label.toLowerCase()}»`);
+  const acc = ACCESSORIES.filter(a => s.accessories.includes(a.id)).map(a => a.label.toLowerCase());
+  if (acc.length) parts.push(`аксессуары: ${acc.join(', ')}`);
+  return parts.join(', ') + '.';
+}
+
 function render() {
-  const scale = SCALES.find(x => x.id === state.scale);
-  const wing = WINGS.find(x => x.id === state.wing);
-  const color = COLORS.find(x => x.id === state.color);
   document.getElementById('preview').innerHTML = buildSvg(state);
-  document.getElementById('caption').textContent = `${color.label} дракон: чешуя «${scale.label.toLowerCase()}», крылья «${wing.label.toLowerCase()}»`;
+  document.getElementById('caption').textContent = describe(state);
 }
 
 const groups = [
   { key: 'scale', containerId: 'scales', items: SCALES },
   { key: 'wing', containerId: 'wings', items: WINGS },
-  { key: 'color', containerId: 'colors', items: COLORS }
+  { key: 'color', containerId: 'colors', items: COLORS },
+  { key: 'saddle', containerId: 'saddles', items: SADDLES }
 ];
 
 function buildGroup({ key, containerId, items }) {
@@ -93,6 +140,7 @@ function buildGroup({ key, containerId, items }) {
     input.type = 'radio';
     input.name = key;
     input.value = item.id;
+    input.dataset.key = key;
     input.checked = state[key] === item.id;
     input.addEventListener('change', () => {
       state[key] = item.id;
@@ -103,14 +151,45 @@ function buildGroup({ key, containerId, items }) {
   });
 }
 
+function buildAccessoryGroup() {
+  const container = document.getElementById('accessories');
+  ACCESSORIES.forEach(item => {
+    const label = document.createElement('label');
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.name = 'accessories';
+    input.value = item.id;
+    input.dataset.key = 'accessories';
+    input.checked = state.accessories.includes(item.id);
+    input.addEventListener('change', () => {
+      state.accessories = input.checked
+        ? [...state.accessories, item.id]
+        : state.accessories.filter(id => id !== item.id);
+      render();
+    });
+    label.append(input, item.label);
+    container.append(label);
+  });
+}
+
+function syncControls() {
+  document.querySelectorAll('input[data-key]').forEach(input => {
+    const key = input.dataset.key;
+    input.checked = key === 'accessories'
+      ? state.accessories.includes(input.value)
+      : state[key] === input.value;
+  });
+}
+
 groups.forEach(buildGroup);
+buildAccessoryGroup();
 
 document.getElementById('randomBtn').addEventListener('click', () => {
-  groups.forEach(({ key, containerId, items }) => {
-    const pick = items[Math.floor(Math.random() * items.length)];
-    state[key] = pick.id;
-    document.querySelector(`#${containerId} input[value='${pick.id}']`).checked = true;
+  groups.forEach(({ key, items }) => {
+    state[key] = items[Math.floor(Math.random() * items.length)].id;
   });
+  state.accessories = ACCESSORIES.filter(() => Math.random() < 0.5).map(a => a.id);
+  syncControls();
   render();
 });
 
