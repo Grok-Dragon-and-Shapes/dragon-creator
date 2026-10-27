@@ -1,0 +1,17 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: #15121f; color: #f1ead8; min-height: 100vh; }
+.layout { display: grid; gap: 16px; padding: 16px; max-width: 960px; margin: 0 auto; }
+@media (min-width: 720px) { .layout { grid-template-columns: 340px 1fr; align-items: start; } }
+h1 { font-size: 1.4rem; margin: 0 0 12px; }
+fieldset { border: 1px solid #3b3550; border-radius: 10px; margin: 0 0 12px; padding: 10px 12px; }
+legend { padding: 0 6px; color: #d9c48a; }
+.options { display: flex; flex-wrap: wrap; gap: 8px; }
+.options label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid #3b3550; border-radius: 8px; cursor: pointer; min-height: 44px; }
+.options label:has(input:checked) { border-color: #d9c48a; background: #2a2440; }
+input:focus-visible, button:focus-visible { outline: 3px solid #d9c48a; outline-offset: 2px; }
+button { min-height: 44px; width: 100%; border: 0; border-radius: 10px; background: #d9c48a; color: #15121f; font-weight: 600; font-size: 1rem; cursor: pointer; }
+button:hover { background: #e8d59e; }
+.stage { display: flex; flex-direction: column; align-items: center; }
+#preview { width: 100%; max-width: 520px; background: radial-gradient(circle at 50% 30%, #2a2440, #15121f 70%); border-radius: 16px; padding: 12px; }
+#preview svg { width: 100%; height: auto; display: block; }
+#caption { color: #b9ad98; text-align: center; }
