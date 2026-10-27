@@ -27,7 +27,9 @@ const SADDLES = [
 const ACCESSORIES = [
   { id: 'crown', label: 'Корона' },
   { id: 'collar', label: 'Ошейник' },
-  { id: 'amulet', label: 'Амулет' }
+  { id: 'amulet', label: 'Амулет' },
+  { id: 'helmet', label: 'Шлем' },
+  { id: 'blanket', label: 'Попона' }
 ];
 
 const WING_SHAPES = {
@@ -66,6 +68,11 @@ function buildSaddle(saddle) {
   return `<path d='M100 106 Q150 84 200 102 L194 118 Q150 104 106 118 Z' fill='${saddle.main}' stroke='${saddle.dark}' stroke-width='2'/>${trim}<path d='M150 112 L150 130' stroke='${saddle.dark}' stroke-width='4' stroke-linecap='round'/>`;
 }
 
+function buildBlanket(ids) {
+  if (!ids.includes('blanket')) return '';
+  return `<path d='M92 116 Q150 98 208 114 L204 152 Q150 168 96 152 Z' fill='#7a2e4a' stroke='#3e1624' stroke-width='2' stroke-linejoin='round'/><path d='M96 152 Q150 168 204 152' fill='none' stroke='#d4a017' stroke-width='3' stroke-dasharray='6 4'/>`;
+}
+
 function buildAccessories(ids) {
   let out = '';
   if (ids.includes('collar')) {
@@ -73,6 +80,9 @@ function buildAccessories(ids) {
   }
   if (ids.includes('amulet')) {
     out += `<path d='M216 100 Q212 116 210 126' fill='none' stroke='#d4a017' stroke-width='2'/><circle cx='210' cy='134' r='7' fill='#7fd3f7' stroke='#2a6f8f' stroke-width='2'/>`;
+  }
+  if (ids.includes('helmet')) {
+    out += `<path d='M206 66 Q210 34 234 32 Q258 34 260 58 Q236 44 206 70 Z' fill='#8a93a6' stroke='#3c4352' stroke-width='2' stroke-linejoin='round'/><path d='M232 34 L232 52' stroke='#d4a017' stroke-width='3' stroke-linecap='round'/>`;
   }
   if (ids.includes('crown')) {
     out += `<path d='M236 44 L236 30 L243 38 L249 26 L255 38 L262 30 L262 44 Z' fill='#f7d774' stroke='#8a6410' stroke-width='2' stroke-linejoin='round'/>`;
@@ -103,6 +113,7 @@ function buildSvg(s) {
     <path d='M254 56 L284 66 L254 72 Z' fill='${c.dark}'/>
     <circle cx='240' cy='56' r='6' fill='#fff'/>
     <circle cx='242' cy='56' r='3' fill='#111'/>
+    ${buildBlanket(s.accessories)}
     ${buildSaddle(saddle)}
     ${buildAccessories(s.accessories)}
   </svg>`;
